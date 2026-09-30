@@ -2,3 +2,4 @@ id,variable,reference,target
 Sham_Sal_vs_Sham_oxy,Condition,Sham_Sal,Sham_oxy
 SNI_Sal_vs_SNI_oxy,Condition,SNI_Sal,SNI_oxy
 SNI_oxy_vs_Sham_Sal,Condition,SNI_oxy,Sham_Sal
+SNI_Sal_vs_Sham_Sal,Condition,SNI_Sal,Sham_Sal
