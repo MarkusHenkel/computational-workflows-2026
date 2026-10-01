@@ -12,4 +12,4 @@ RUN apt install cowsay -y
 RUN apt install curl -y
 
 # !TODO: add an ENV line to set environmental variables. In this case, it should set the PATH variable to /usr/games. Explain in the notebook why this is necessary.
-ENV PATH="/usr/games:\$(PATH)"
+ENV PATH="/usr/games:${PATH}"
