@@ -1,11 +1,16 @@
-FROM debian:bullseye-slim
+FROM debian:13-slim
 
-LABEL image.author.name="yourname"
-LABEL image.author.email="yourmail"
+LABEL image.author.name="Markus Henkel"
+LABEL image.author.email="markus.henkel@student.uni-tuebingen.de"
 
 # Install dependencies
+RUN apt-get update
+RUN apt-get install curl -y
+RUN apt-get install tar -y
 
 # Download and install Salmon
+# -L because Github redirects, --strip_components so the salmon bin lands in the /usr/bin/
+RUN curl -fL "https://github.com/COMBINE-lab/salmon/releases/download/v1.5.2/salmon-1.5.2_linux_x86_64.tar.gz" | tar -xz -C /usr --strip-components=1
 
 # Set the PATH environment variable (to /usr/bin)
-
+ENV PATH="/usr/bin:${PATH}"

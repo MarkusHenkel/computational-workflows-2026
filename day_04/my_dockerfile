@@ -2,7 +2,7 @@
 FROM debian:13-slim
 
 # these are the labels that are added to the image. They are metadata that can be used to identify the author of the image.
-LABEL image.author.name "markus"
+LABEL image.author.name "Markus Henkel"
 LABEL image.author.email "markus.henkel@student.uni-tuebingen.de"
 
 # !TODO: add the command that is run to install the dependencies for the image. In this case, it should be updating the package list and installing curl and cowsay.
