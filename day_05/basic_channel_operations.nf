@@ -8,23 +8,21 @@ workflow{
     // Task 1 - Extract the first item from the channel
 
     if (params.step == 1) {
-        in_ch = channel.of(1,2,3)
-
+        in_ch = channel.of(1,2,3).first().view()
     }
 
     // Task 2 - Extract the last item from the channel
     
     if (params.step == 2) {
 
-        in_ch = channel.of(1,2,3)
+        in_ch = channel.of(1,2,3).last().view()
 
     }
 
     // Task 3 - Use an operator to extract the first two items from the channel
 
     if (params.step == 3) {
-
-        in_ch = channel.of(1,2,3)
+        in_ch = channel.of(1,2,3).take(2).view()
 
 
     }
@@ -32,8 +30,7 @@ workflow{
     // Task 4 - Return the squared values of the channel
     
     if (params.step == 4) {
-
-        in_ch = channel.of(2,3,4)
+        in_ch = channel.of(2,3,4).map{v -> v**2}.view()
 
 
     }
@@ -43,7 +40,7 @@ workflow{
     if (params.step == 5) {
 
         in_ch = channel.of(2,3,4)
-        in_ch.map { it -> it * it }.take(2).view()
+        in_ch.map{v -> v**2}.take(2).view()
         
     }
 
@@ -51,16 +48,14 @@ workflow{
 
     if (params.step == 6) {
         
-        in_ch = channel.of('Taylor', 'Swift')
+        in_ch = channel.of('Taylor', 'Swift').map{v -> v.reverse()}.view()
 
     }
 
     // Task 7 - Use fromPath to include all fastq files in the "files_dir" directory, then use map to return a pair containing the file name and the file path (Hint: include groovy code)
 
     if (params.step == 7) {
-
-        in_ch = channel.fromPath('files_dir/*.fq')
-
+        in_ch = channel.fromPath('files_dir/*.fq').map{v -> [file(v).name, v]}.view()
         
     }
 
@@ -70,8 +65,9 @@ workflow{
 
         ch_1 = channel.of(1,2,3)
         ch_2 = channel.of(4,5,6)
-        out_ch = channel.of("a", "b", "c")
 
+        ch_3 = ch_1.concat(ch_2).view()
+        
 
     }
 
@@ -79,17 +75,18 @@ workflow{
 
     if (params.step == 9) {
 
-        in_ch = channel.of([1,2,3], [4,5,6])
-
+        in_ch = channel.of([1,2,3], [4,5,6]).flatten().view()
 
     }
 
     // Task 10 - Collect the items of a channel into a list. What kind of channel is the output channel (value)?
 
     if (params.step == 10) {
-
         in_ch = channel.of(1,2,3)
+        println(in_ch.getClass())   
 
+        in_ch = channel.of(1,2,3).collect().view()
+        println(in_ch.getClass())
     }
     
 
@@ -102,6 +99,7 @@ workflow{
     if (params.step == 11) {
 
         in_ch = channel.of([1, 'V'], [3, 'M'], [2, 'O'], [1, 'f'], [3, 'G'], [1, 'B'], [2, 'L'], [2, 'E'], [3, '33'])
+        out_ch = in_ch.groupTuple().view()
 
     }
 
@@ -112,6 +110,7 @@ workflow{
         left_ch = channel.of([1, 'V'], [3, 'M'], [2, 'O'], [1, 'B'], [3, '33'])
         right_ch = channel.of([1, 'f'], [3, 'G'], [2, 'L'], [2, 'E'],)
 
+        out_ch = left_ch.join(right_ch, remainder: true).view()
     }
 
     // Task 13 - Split the input channel into two channels, one of all the even numbers and the other of all the odd numbers. Write the output of each channel to a list
@@ -120,6 +119,9 @@ workflow{
     if (params.step == 13) {
 
         in_ch = channel.of(1,2,3,4,5,6,7,8,9,10)
+
+        out_ch_even = in_ch.filter { v -> v % 2 == 0}.view { v -> "$v is even" }
+        out_ch_odd = in_ch.filter { v -> v % 2 == 1}.view { v -> "$v is odd" }
 
     }
 
@@ -137,6 +139,7 @@ workflow{
             ['name': 'Hagrid', 'title': 'groundkeeper'],
             ['name': 'Dobby', 'title': 'hero'],
         )
+        in_ch.map { v -> v["name"] }.collectFile(name: 'names.txt', newLine: true, storeDir: "results")
     
     }
 
