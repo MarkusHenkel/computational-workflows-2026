@@ -136,7 +136,7 @@ process WRITETOFILE {
     // groovy script to iterate over the input map and creating mutliple bash one-liners
     def commands = maps
         // escape the tabs and newlines inside the echo so that they are not interpreted by groovy
-        .collect{v -> "echo '${v.name}\\t${v.title}\\n' >> 'results/names.tsv'"}
+        .collect{v -> "echo '${v.name}\\t${v.title}' >> 'results/names.tsv'"}
         // join so that list of echos -> one line with \n inbetween
         .join("\n")
 
