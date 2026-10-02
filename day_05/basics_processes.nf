@@ -6,9 +6,146 @@ params {
 
 process SAYHELLO {
     debug true
+
+    script:
+    """
+    echo 'Hello World!'
+    """
 }
 
+process SAYHELLO_PYTHON {
+    debug true
 
+    script:
+    """
+    #!/usr/bin/env python3
+
+    print("Hello World!")
+    """
+}
+
+process SAYHELLO_PARAM {
+    debug true
+
+    input:
+        val input
+
+    script:
+    """
+    echo 'Input: $input'
+    """
+}
+process SAYHELLO_FILE {
+    debug true
+
+    input:  
+        val input
+
+    script:
+    """
+    echo '$input' > 'sayhello.txt'
+    echo 'File created'
+    """
+
+}
+
+process UPPERCASE {
+    debug true
+
+    input:
+        val input
+
+    output:
+        path 'uppercase.txt'  
+
+    script:
+    """
+    text="$input"
+    echo "\${text^^}" > uppercase.txt
+    """
+}
+
+process PRINTUPPER {
+    debug true
+
+    input:
+        val file_path
+
+    script:
+    """
+    cat '$file_path'
+    """
+    
+}
+
+process ZIP_FILE {
+    debug true
+
+    input:
+        // apparently NF doesnt like full paths so path instead of val to get just filename
+        path filepath
+
+    output:
+        path "${filepath}.*"
+
+    script:
+    if (params.zip == "zip")
+        """ 
+        zip "${filepath}.zip" "$filepath"
+        """
+    else if (params.zip == "gzip")
+        """
+        gzip -c "$filepath" > "${filepath}.gz"
+        """
+    else if (params.zip == "bzip2")
+        """
+        bzip2 -c "$filepath" > "${filepath}.bz2"
+        """
+    else 
+        error "Invalid zip method: $params.zip"
+    
+}
+
+process TRIPLE_ZIP {
+    debug true 
+
+    input:
+        path filepath
+
+    output:
+        path "${filepath}.*"
+
+    script:
+    """ 
+    zip "${filepath}.zip" "$filepath"
+    gzip -c "$filepath" > "${filepath}.gz"
+    bzip2 -c "$filepath" > "${filepath}.bz2"
+    """
+}
+
+process WRITETOFILE {
+    debug true
+
+    input:
+        val maps
+
+    output:
+        path "results/names.tsv"
+    
+    script:
+    // groovy script to iterate over the input map and creating mutliple bash one-liners
+    def commands = maps
+        // escape the tabs and newlines inside the echo so that they are not interpreted by groovy
+        .collect{v -> "echo '${v.name}\\t${v.title}\\n' >> 'results/names.tsv'"}
+        // join so that list of echos -> one line with \n inbetween
+        .join("\n")
+
+    // executing the one-liner
+    """
+    mkdir results/
+    ${commands}
+    """
+}
 
 workflow {
 
@@ -53,12 +190,18 @@ workflow {
     //          Print out the path to the zipped file in the console
     if (params.step == 7) {
         greeting_ch = Channel.of("Hello world!")
+        out_ch = UPPERCASE(greeting_ch)
+        ZIP_FILE(out_ch)
+        out_ch.view { v -> "Uppercase file zipped with ${params.zip}: $v" }
     }
 
     // Task 8 - Create a process that zips the file created in the UPPERCASE process in "zip", "gzip" AND "bzip2" format. Print out the paths to the zipped files in the console
 
     if (params.step == 8) {
         greeting_ch = Channel.of("Hello world!")
+        out_ch = UPPERCASE(greeting_ch)
+        TRIPLE_ZIP(out_ch)
+        out_ch.view { v -> "Zipped uppercase files: $v" }
     }
 
     // Task 9 - Create a process that reads in a list of names and titles from a channel and writes them to a file.
@@ -75,9 +218,9 @@ workflow {
             ['name': 'Dobby', 'title': 'hero'],
         )
 
-        in_ch
-            | WRITETOFILE
-            // continue here
+        // give the process a list of maps
+        in_ch.collect() | WRITETOFILE
+            
     }
 
 }
