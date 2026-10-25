@@ -19,7 +19,6 @@ workflow{
     //          Set the output to a new channel "in_ch" and view the channel. YOU WILL NEED TO COPY AND PASTE THIS CODE INTO SOME OF THE FOLLOWING TASKS (sorry for that).
 
     if (params.step == 2) {
-        // TODO filenames -> filepaths
         samplesheet_map = channel.fromPath('samplesheet.csv').splitCsv(header: true)
         in_ch = samplesheet_map.map{row -> [["id":row.sample, "strandedness":row.strandedness], ["${params.files_dir_path}/${row.fastq_1}", "${params.files_dir_path}/${row.fastq_2}"]]}
         in_ch.view()

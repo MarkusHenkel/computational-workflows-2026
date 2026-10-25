@@ -85,14 +85,4 @@ workflow {
     outfiles = CONVERTTOUPPER(ch_chunk_files, 'results').outfiles
     outfiles.view { v -> "List with the paths of the chunk files: ${v}"}
 
-    // read in samplesheet}
-
-    // split the input string into chunks
-
-    // lets remove the metamap to make it easier for us, as we won't need it anymore
-    // TODO what?
-    // convert the chunks to uppercase and save the files to the results directory
-
-
-
 }
